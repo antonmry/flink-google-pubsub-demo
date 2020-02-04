@@ -1,4 +1,5 @@
 import Model.Alert;
+import Model.AlertMatch;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.api.core.ApiFuture;
@@ -15,10 +16,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class GooglePubSubGeneratorTests {
+
+    public static final int GENERATED_MESSAGES = 4;
 
     @Test
     public void generatePubSubMessages() throws IOException, ExecutionException, InterruptedException {
@@ -36,26 +40,12 @@ public class GooglePubSubGeneratorTests {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JodaModule());
 
-            AlertDestination alertDestination1 = new AlertDestination(
-                    AlertDestinationType.NOOP,
-                    Arrays.asList("destination1"),
-                    "schedule1"
-            );
-            Alert alert1 = new Alert("1", "2", Arrays.asList("Bart", "Lisa"),
-                    true, 3, Arrays.asList(alertDestination1));
 
-            AlertDestination alertDestination2 = new AlertDestination(
-                    AlertDestinationType.SMS,
-                    Arrays.asList("destination2"),
-                    "schedule2"
-            );
-            Alert alert2 = new Alert("3", "4", Arrays.asList("Anton"),
-                    true, 3, Arrays.asList(alertDestination2));
+            List<String> messages = new ArrayList<>();
 
-            List<String> messages = Arrays.asList(
-                    objectMapper.writeValueAsString(alert1),
-                    objectMapper.writeValueAsString(alert2)
-            );
+            for (int i = 0; i < GENERATED_MESSAGES; i++) {
+                messages.add(objectMapper.writeValueAsString(generateRandomAlertMatch()));
+            }
 
             for (String message : messages) {
                 ByteString data = ByteString.copyFromUtf8(message);
@@ -78,5 +68,27 @@ public class GooglePubSubGeneratorTests {
         }
     }
 
+    private AlertMatch generateRandomAlertMatch() {
+
+        Random r = new Random();
+
+        AlertDestination alertDestination1 = new AlertDestination(
+                AlertDestinationType.values()[r.nextInt(AlertDestinationType.values().length)],
+                Arrays.asList("destination"),
+                "schedule1"
+        );
+        AlertDestination alertDestination2 = new AlertDestination(
+                AlertDestinationType.values()[r.nextInt(AlertDestinationType.values().length)],
+                Arrays.asList("destination"),
+                "schedule1"
+        );
+
+        Alert alert = new Alert("1", "2",
+                Arrays.asList("user" + r.nextInt(4) + 1,
+                        "user" + r.nextInt(4) + 1),
+                true, 3, Arrays.asList(alertDestination1));
+
+        return new AlertMatch(alert, "url1", 1);
+    }
 }
 

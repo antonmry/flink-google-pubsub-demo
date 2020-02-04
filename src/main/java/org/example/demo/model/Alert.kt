@@ -20,6 +20,7 @@ data class Alert(var id: String? = null, var orgId: String? = null) {
     }
 
     override fun toString(): String {
-        return "Alert(id=$id, orgId=$orgId, userIds=$userIds, enabled=$enabled, dailyThreshold=$dailyThreshold, destinations=$destinations)"
+        return "Alert(id=$id, orgId=$orgId, userIds=$userIds, enabled=$enabled, cacheDateTime=$cacheDateTime, dailyThreshold=$dailyThreshold, destinations=$destinations)"
     }
+
 }
