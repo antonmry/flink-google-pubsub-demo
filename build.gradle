@@ -87,9 +87,13 @@ dependencies {
     compile "org.apache.flink:flink-connector-gcp-pubsub_${scalaBinaryVersion}:${flinkVersion}"
     compile "com.google.guava:guava:28.1-jre"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    // See https://stackoverflow.com/questions/53191468/no-creators-like-default-construct-exist-cannot-deserialize-from-object-valu
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.+"
 
     // Add test dependencies here.
-    // testCompile "junit:junit:4.12"
+    testCompile "junit:junit:4.12"
+    testCompile 'com.google.cloud:google-cloud-pubsub:1.102.1'
+
 }
 
 // make compileOnly dependencies available for tests:

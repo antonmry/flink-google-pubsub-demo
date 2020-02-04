@@ -44,16 +44,13 @@ xdg-open http://localhost:8081
 Generate events in PubSub:
 
 ```
-pip3 install --user pipenv
-cd helper
-pipenv install -r requirements.txt
-pipenv run python main.py
+./gradlew test --tests "GooglePubSubGeneratorTests.generatePubSubMessages"
 ```
 
 Compile and deploy (option with Flink cluster):
 
 ```
-./gradlew build
+./gradlew build -x test
 ../flink-1.9.2/bin/flink run build/libs/stream-processing-demo-0.1.0.jar
 tail -f ../flink-1.9.2/log/flink-*-standalonesession-*.log
 ```
