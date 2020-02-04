@@ -11,6 +11,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.example.demo.model.Alert;
 
 public class StreamingJob {
 
@@ -30,13 +31,13 @@ public class StreamingJob {
         String projectId = envVars.get("GCP_PROJECT");
         String subscription = envVars.get("PUBSUB_SUBSCRIPTION");
 
-        SourceFunction<PubSubEvent> pubSubSource = PubSubSource.newBuilder()
+        SourceFunction<Alert> pubSubSource = PubSubSource.newBuilder()
                 .withDeserializationSchema(deserializer)
                 .withProjectName(projectId)
                 .withSubscriptionName(subscription)
                 .build();
 
-        DataStream<PubSubEvent> dataStream = env.addSource(pubSubSource);
+        DataStream<Alert> dataStream = env.addSource(pubSubSource);
 
         dataStream.print();
 

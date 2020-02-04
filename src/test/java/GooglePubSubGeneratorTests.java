@@ -1,12 +1,14 @@
+import Model.Alert;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.ProjectTopicName;
 import com.google.pubsub.v1.PubsubMessage;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.demo.PubSubEvent;
-import org.junit.Ignore;
+import org.example.demo.model.AlertDestination;
+import org.example.demo.model.AlertDestinationType;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,26 +31,40 @@ public class GooglePubSubGeneratorTests {
         List<ApiFuture<String>> messageIdFutures = new ArrayList<>();
 
         try {
-            // Create a publisher instance with default settings bound to the topic
             publisher = Publisher.newBuilder(topicName).build();
 
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JodaModule());
+
+            AlertDestination alertDestination1 = new AlertDestination(
+                    AlertDestinationType.NOOP,
+                    Arrays.asList("destination1"),
+                    "schedule1"
+            );
+            Alert alert1 = new Alert("1", "2", Arrays.asList("Bart", "Lisa"),
+                    true, 3, Arrays.asList(alertDestination1));
+
+            AlertDestination alertDestination2 = new AlertDestination(
+                    AlertDestinationType.SMS,
+                    Arrays.asList("destination2"),
+                    "schedule2"
+            );
+            Alert alert2 = new Alert("3", "4", Arrays.asList("Anton"),
+                    true, 3, Arrays.asList(alertDestination2));
+
             List<String> messages = Arrays.asList(
-                    objectMapper.writeValueAsString(new PubSubEvent("1", "2")),
-                    objectMapper.writeValueAsString(new PubSubEvent("3", "4"))
+                    objectMapper.writeValueAsString(alert1),
+                    objectMapper.writeValueAsString(alert2)
             );
 
-            // schedule publishing one message at a time : messages get automatically batched
             for (String message : messages) {
                 ByteString data = ByteString.copyFromUtf8(message);
                 PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
 
-                // Once published, returns a server-assigned message id (unique within the topic)
                 ApiFuture<String> messageIdFuture = publisher.publish(pubsubMessage);
                 messageIdFutures.add(messageIdFuture);
             }
         } finally {
-            // wait on any pending publish requests.
             List<String> messageIds = ApiFutures.allAsList(messageIdFutures).get();
 
             for (String messageId : messageIds) {
@@ -56,7 +72,6 @@ public class GooglePubSubGeneratorTests {
             }
 
             if (publisher != null) {
-                // When finished with the publisher, shutdown to free up resources.
                 publisher.shutdown();
                 publisher.awaitTermination(1, TimeUnit.MINUTES);
             }

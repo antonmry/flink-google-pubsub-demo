@@ -60,3 +60,11 @@ Compile and deploy (option with embedded Flink cluster):
 ```
 ./gradlew run
 ```
+
+You can inspect the topic with:
+
+```
+gcloud pubsub subscriptions pull --auto-ack my-sub --limit 100
+```
+
+Note it will use the same subscriber so you shouldn't use the test and cli at the same time.
