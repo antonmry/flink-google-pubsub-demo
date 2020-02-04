@@ -48,7 +48,7 @@ public class CustomFilter extends RichFilterFunction<PubSubEvent> implements Lis
     // returns true.
     @Override
     public boolean filter(PubSubEvent event) throws Exception {
-        String eventId = event.eventId;
+        String eventId = event.getEventId();
         boolean ok = this.cache.get(eventId);
 
         if (!ok) {
