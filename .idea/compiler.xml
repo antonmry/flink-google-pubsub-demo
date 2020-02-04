@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
-      <module name="org.example.demo.stream-processing-demo.jvmMain" target="1.6" />
-      <module name="org.example.demo.stream-processing-demo.jvmTest" target="1.6" />
-    </bytecodeTargetLevel>
-  </component>
-</project>
